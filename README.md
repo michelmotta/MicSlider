@@ -1,1 +1,1 @@
-# MicSlider
+# MicSlider Wordpress Plugin
