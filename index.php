@@ -9,6 +9,14 @@
  * License: GPL2
  */ 
 
+function micslider_wp_enqueue_scripts() 
+{
+  wp_register_style( 'bootstrap', plugins_url( 'MicSlider/css/bootstrap.min.css'), array(), '3.3.7', 'all');
+  wp_register_script( 'bootstrap-js', plugins_url( 'MicSlider/js/bootstrap.min.js'), array( 'jquery' ), '3.3.7', true );
+}
+add_action( 'wp_enqueue_scripts', 'micslider_wp_enqueue_scripts' );
+
+
 function micslider_post_type() 
 { 
   $labels = array(
@@ -90,7 +98,8 @@ function micslider_meta_save($post_id)
 add_action('save_post', 'micslider_meta_save');
 
 
-function micslider_set_custom_edit_columns($columns) {
+function micslider_set_custom_edit_columns($columns) 
+{
   $columns = array(
     'cb' => '<input type="checkbox" />',
     'title' => __('Title'),
@@ -103,7 +112,8 @@ function micslider_set_custom_edit_columns($columns) {
   return $columns;
 }
 
-function micslider_custom_column( $column, $post_id ) {
+function micslider_custom_column( $column, $post_id ) 
+{
   switch ( $column ) {
     case 'micslider_preview' :
       $image = wp_get_attachment_image_src( get_post_thumbnail_id($post_id), 'full', false, '' );
@@ -135,7 +145,8 @@ add_filter( 'manage_micslider_posts_columns', 'micslider_set_custom_edit_columns
 add_action( 'manage_micslider_posts_custom_column' , 'micslider_custom_column', 10, 2 );
 
 
-function create_micslider_taxonomies() {
+function create_micslider_taxonomies() 
+{
   $labels = array(
     'name'  => _x('Categoria', 'taxonomy general name'),
     'singular_name' => _x('Categoria', 'taxonomy singular name'),
@@ -160,3 +171,60 @@ function create_micslider_taxonomies() {
   register_taxonomy('micslider_cat', array('micslider'), $args );
 }
 add_action( 'init', 'create_micslider_taxonomies', 0 );
+
+// [micslider categoria="categoria 1"]
+function micslider_func($atts, $content = null) 
+{
+  extract(shortcode_atts(array(
+    "categoria" => '',
+    "quantidade" => 1
+  ), $atts));
+
+  wp_enqueue_style('bootstrap');
+  wp_enqueue_script('bootstrap-js');
+
+  ob_start();
+  ?>
+
+  <div id="myCarousel" class="carousel slide" data-ride="carousel">
+    <!-- Wrapper for slides -->
+    <div class="carousel-inner" role="listbox">
+      <?php 
+      $args = array(
+        'post_type' => 'micslider',
+        'showposts' => $quantidade,
+      );
+      $wp_query = new WP_Query( $args );
+      $count = 0;
+    ?>
+
+    <?php if ( $wp_query->have_posts() ) : while ( $wp_query->have_posts() ) : $wp_query->the_post(); ?>
+      <?php $count++; ?>  
+        <div class="item <?php if($count == 1){echo "active";}?>">
+            <div class="banner_image">
+              <center><?php the_post_thumbnail();?></center>
+            </div>
+        </div>
+    <?php endwhile; wp_reset_query();  else: ?>
+      <p><?php _e('Sorry, no posts matched your criteria.'); ?></p>
+    <?php endif; ?>
+    </div>
+
+    <!-- Left and right controls -->
+    <a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
+      <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+      <span class="sr-only">Previous</span>
+    </a>
+    <a class="right carousel-control" href="#myCarousel" role="button" data-slide="next">
+      <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+      <span class="sr-only">Next</span>
+    </a>
+  </div>
+
+  <?php
+  $content = ob_get_contents();
+  ob_end_clean();
+  
+  return $content;
+}
+add_shortcode('micslider', 'micslider_func' );
