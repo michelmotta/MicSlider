@@ -2,10 +2,25 @@
   <!-- Wrapper for slides -->
   <div class="carousel-inner" role="listbox">
     <?php 
-    $args = array(
-      'post_type' => 'micslider',
-      'showposts' => $quantidade,
-    );
+    if($categoria){
+      $args = array(
+        'post_type' => 'micslider',
+        'showposts' => $quantidade,
+        'tax_query' => array(
+          array(
+            'taxonomy' => 'micslider_cat',
+            'field'    => 'name',
+            'terms'    => $categoria,
+          ),
+        ),
+      );
+    }else{
+      $args = array(
+        'post_type' => 'micslider',
+        'showposts' => $quantidade
+      );
+    }
+    
     $wp_query = new WP_Query( $args );
     $count = 0;
   ?>
