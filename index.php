@@ -1,11 +1,11 @@
 <?php
 /**
  * Plugin Name: MicSlider
- * Plugin URI: https://www.facebook.com/michel.mottadasilva
+ * Plugin URI: https://github.com/michelmotta/MicSlider
  * Description: This plugin is a simple slider. It creates slider menu where you can publish sliders and add custon links to the slider created.
  * Version: 0.1
  * Author: Michel Motta da Silva
- * Author URI: https://www.facebook.com/michel.mottadasilva
+ * Author URI: https://github.com/michelmotta
  * License: GPL2
  */
 
@@ -36,6 +36,7 @@ function micslider_post_type() {
         'rewrite' => true,
         'capability_type' => 'post',
         'has_archive' => true,
+        'menu_icon' => 'dashicons-money',
         'hierarchical' => false,
         'menu_position' => null,
 				'register_meta_box_cb' => 'micslider_meta_box',       
@@ -51,5 +52,14 @@ function micslider_meta_box(){
 }
 
 function micslider_meta_box_callback(){
-	 echo 'This is a meta box';      
+	wp_nonce_field( basename( __FILE__ ), 'micslider_nonce' );
+  $micslider_meta = get_post_meta( $post->ID );
+?>
+ 
+  <p>
+    <label class="">Link Externo</label>
+    <input type="text" name="micslider-link" id="micslider-link" value="<?php if(isset($micslider_meta['micslider-link'])) echo $prfx_stored_meta['meta-text'][0]; ?>" />
+  </p>
+ 
+<?php    
 }
