@@ -123,7 +123,7 @@ function micslider_custom_column( $column, $post_id )
         echo "Sem imagem";
     break;
     case 'micslider_image_link' :
-      $link = $meta_value = get_post_meta( $post_id, 'micslider-link', true );
+      $link = get_post_meta( $post_id, 'micslider-link', true );
       if (!empty($link))
         echo '<small>' . $link . '</small>';
       else
@@ -184,44 +184,9 @@ function micslider_func($atts, $content = null)
   wp_enqueue_script('bootstrap-js');
 
   ob_start();
-  ?>
+  
+  include 'includes/loop.php';
 
-  <div id="myCarousel" class="carousel slide" data-ride="carousel">
-    <!-- Wrapper for slides -->
-    <div class="carousel-inner" role="listbox">
-      <?php 
-      $args = array(
-        'post_type' => 'micslider',
-        'showposts' => $quantidade,
-      );
-      $wp_query = new WP_Query( $args );
-      $count = 0;
-    ?>
-
-    <?php if ( $wp_query->have_posts() ) : while ( $wp_query->have_posts() ) : $wp_query->the_post(); ?>
-      <?php $count++; ?>  
-        <div class="item <?php if($count == 1){echo "active";}?>">
-            <div class="banner_image">
-              <center><?php the_post_thumbnail();?></center>
-            </div>
-        </div>
-    <?php endwhile; wp_reset_query();  else: ?>
-      <p><?php _e('Sorry, no posts matched your criteria.'); ?></p>
-    <?php endif; ?>
-    </div>
-
-    <!-- Left and right controls -->
-    <a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
-      <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
-      <span class="sr-only">Previous</span>
-    </a>
-    <a class="right carousel-control" href="#myCarousel" role="button" data-slide="next">
-      <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
-      <span class="sr-only">Next</span>
-    </a>
-  </div>
-
-  <?php
   $content = ob_get_contents();
   ob_end_clean();
   
