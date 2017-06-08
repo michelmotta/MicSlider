@@ -12,37 +12,37 @@
 function micslider_post_type() 
 { 
   $labels = array(
-      'name' => _x('MicSlider', 'post type general name'),
-      'singular_name' => _x('MicSlider', 'post type singular name'),
-      'add_new' => _x('Adicionar Novo', 'Novo item'),
-      'add_new_item' => __('Novo Item'),
-      'edit_item' => __('Editar Item'),
-      'new_item' => __('Novo Item'),
-      'view_item' => __('Ver Item'),
-      'search_items' => __('Procurar Itens'),
-      'not_found' =>  __('Nenhum registro encontrado'),
-      'not_found_in_trash' => __('Nenhum registro encontrado na lixeira'),
-      'parent_item_colon' => '',
-      'menu_name' => 'MicSlider'
+    'name' => _x('MicSlider', 'post type general name'),
+    'singular_name' => _x('MicSlider', 'post type singular name'),
+    'add_new' => _x('Adicionar Novo', 'Novo item'),
+    'add_new_item' => __('Novo Item'),
+    'edit_item' => __('Editar Item'),
+    'new_item' => __('Novo Item'),
+    'view_item' => __('Ver Item'),
+    'search_items' => __('Procurar Itens'),
+    'not_found' =>  __('Nenhum registro encontrado'),
+    'not_found_in_trash' => __('Nenhum registro encontrado na lixeira'),
+    'parent_item_colon' => '',
+    'menu_name' => 'MicSlider'
   );
 
   $args = array(
-      'labels' => $labels,
-      'public' => false,
-      'public_queryable' => true,
-      'show_ui' => true,           
-      'query_var' => true,
-      'rewrite' => true,
-      'capability_type' => 'post',
-      'has_archive' => true,
-      'menu_icon' => 'dashicons-money',
-      'hierarchical' => false,
-      'menu_position' => null,
-			'register_meta_box_cb' => 'micslider_meta_box',       
-      'supports' => array('title','thumbnail')
-    );
+    'labels' => $labels,
+    'public' => false,
+    'public_queryable' => true,
+    'show_ui' => true,           
+    'query_var' => true,
+    'rewrite' => true,
+    'capability_type' => 'post',
+    'has_archive' => true,
+    'menu_icon' => 'dashicons-money',
+    'hierarchical' => false,
+    'menu_position' => null,
+		'register_meta_box_cb' => 'micslider_meta_box',       
+    'supports' => array('title','thumbnail')
+  );
 
-	register_post_type( 'micslider' , $args );
+	register_post_type('micslider' , $args );
 	flush_rewrite_rules();
 }
 add_action('init', 'micslider_post_type');
@@ -88,3 +88,75 @@ function micslider_meta_save($post_id)
  
 }
 add_action('save_post', 'micslider_meta_save');
+
+
+function micslider_set_custom_edit_columns($columns) {
+  $columns = array(
+    'cb' => '<input type="checkbox" />',
+    'title' => __('Title'),
+    'micslider_preview' => __('Imagem'),
+    'micslider_image_link' => __('Link da image'),
+    'micslider_categories' => __('Categorias'),
+    'date' => __('Date')
+  );
+  
+  return $columns;
+}
+
+function micslider_custom_column( $column, $post_id ) {
+  switch ( $column ) {
+    case 'micslider_preview' :
+      $image = wp_get_attachment_image_src( get_post_thumbnail_id($post_id), 'full', false, '' );
+      if ($image)
+        echo '<img src="' . $image[0] . '" width="100" height="50">';
+      else
+        echo "Sem imagem";
+    break;
+    case 'micslider_image_link' :
+      $link = $meta_value = get_post_meta( $post_id, 'micslider-link', true );
+      if (!empty($link))
+        echo '<small>' . $link . '</small>';
+      else
+        echo "<small>Sem link</small >";
+    break;
+    case 'micslider_categories' :
+      $terms = get_the_terms($post_id, 'micslider_cat');
+      if ($terms)
+        foreach ($terms as $term) {
+          echo $term->name . ',';
+        }
+      else
+        echo "<small>Sem Categoria</small >";
+    break;
+  }
+}
+
+add_filter( 'manage_micslider_posts_columns', 'micslider_set_custom_edit_columns' );
+add_action( 'manage_micslider_posts_custom_column' , 'micslider_custom_column', 10, 2 );
+
+
+function create_micslider_taxonomies() {
+  $labels = array(
+    'name'  => _x('Categoria', 'taxonomy general name'),
+    'singular_name' => _x('Categoria', 'taxonomy singular name'),
+    'search_items'  => __('Procurar categorias'),
+    'all_items' => __('Todos as categorias'),
+    'parent_item' => __('Categorias semelhantes'),
+    'parent_item_colon' => __('Categoria semelhante:'),
+    'edit_item' => __('Editar categoria'),
+    'update_item' => __('Atualizar categoria'),
+    'add_new_item'  => __('Adicionar nova categoria'),
+    'new_item_name' => __('Nova categoria'),
+    'menu_name' => __('Categorias')
+  );
+  $args = array(
+    'hierarchical'  => true,
+    'labels'  => $labels,
+    'show_ui' => true,
+    'show_admin_column' => true,
+    'query_var' => true,
+    'rewrite' => array( 'slug' => 'micslider_cat' ),
+  );
+  register_taxonomy('micslider_cat', array('micslider'), $args );
+}
+add_action( 'init', 'create_micslider_taxonomies', 0 );
