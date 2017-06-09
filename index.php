@@ -27,6 +27,7 @@ class micslider
     add_filter('manage_micslider_posts_columns', array($this,'micslider_set_custom_edit_columns'));
     add_action('manage_micslider_posts_custom_column', array($this,'micslider_custom_column'), 10, 2 );
     add_shortcode('micslider', array($this,'micslider_func'));
+
     add_action('wp_enqueue_scripts', array($this,'micslider_wp_enqueue_scripts'));
     add_action('admin_menu', array($this,'micslider_options_page'));
   
@@ -252,7 +253,7 @@ class micslider
   */
   function micslider_options_page()
   {
-    add_submenu_page( 'edit.php?post_type=micslider', 'Opções', 'Opções', 'manage_options', 'micslider-options', array($this,'micslider_options_page_callback'));
+    add_submenu_page( 'edit.php?post_type=micslider', 'Shortcode', 'Shortcode', 'manage_options', 'micslider-options', array($this, 'micslider_options_page_callback'));
   }
 
 
@@ -263,7 +264,48 @@ class micslider
   */
   function micslider_options_page_callback() 
   { 
-    
+    $terms = get_terms( array(
+      'taxonomy' => 'micslider_cat',
+      'hide_empty' => false,
+    ));
+    ?>
+      <div class="wrap">
+        <h1>MicSlider Shortcode Generator</h1>
+        <h2>Selecione uma categoria</h2>
+        <select id="cat" onchange="myFunction()">
+          <option value=''>Todas as categorias</option>
+          <?php
+            foreach ($terms as $term) {
+              echo '<option value="' . $term->name . '">' . $term->name . '</option>';
+            }
+          ?>
+        </select>
+        <h2>Selecione uma quantidade de Slides</h2>
+        <select id="qtd" onchange="myFunction()">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+        </select>
+        <h2>Shortcode</h2>
+        <p id="shortcode1">[micslider categoria="" quantidade="1"]</p>
+        <h2>PHP Shortcode</h2>
+        <p id="shortcode2">do_shortcode('[micslider categoria="" quantidade="1"]')</p>
+      </div>
+      <script>
+        function myFunction() {
+
+          var cat = document.getElementById("cat").value;
+          var qtd = document.getElementById("qtd").value;
+
+          document.getElementById("shortcode1").innerHTML = "[micslider categoria=&quot;" + cat + "&quot; quantidade=&quot;" + qtd + "&quot;]'";
+
+          document.getElementById("shortcode2").innerHTML = "do_shortcode('[micslider categoria=&quot;" + cat + "&quot; quantidade=&quot;" + qtd + "&quot;]');";
+        }
+      </script>
+    <?php
   }
 
 
