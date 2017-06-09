@@ -193,3 +193,15 @@ function micslider_func($atts, $content = null)
   return $content;
 }
 add_shortcode('micslider', 'micslider_func' );
+
+
+function micslider_options_page()
+{
+  add_submenu_page( 'edit.php?post_type=micslider', 'Opções', 'Opções', 'manage_options', 'micslider-options', 'micslider_options_page_callback');
+}
+
+function micslider_options_page_callback() 
+{ 
+  
+}
+add_action('admin_menu', 'micslider_options_page');
